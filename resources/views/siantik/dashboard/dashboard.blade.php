@@ -60,7 +60,7 @@
                 <div class="position-absolute top-0 start-0 w-100 h-75 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-10">
                     <div class="w-100 d-flex flex-column bg-dark bg-opacity-0 justify-content-center align-items-center">
                         <h1></h1>
-                        <h1 class="fw-bolder text-white fs-1 fs-lg-2qx mb-3 p-2" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); background-color:rgba(0, 0, 0, 0.5);">SELAMAT DATANG</h1>
+                        <h1 class="fw-bolder text-white fs-1 fs-lg-2qx mb-3 bg-primary p-2" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); background-color:rgba(0, 0, 0, 0.5);">SELAMAT DATANG</h1>
                         <br>
                         <h1 class="fw-bolder text-white fs-1 fs-lg-2qx mb-3 p-2" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); background-color:rgba(0, 0, 0, 0.5)"> 
                             di Sistem Informasi Asesmen Nilai Tingkat Kematangan TIK
