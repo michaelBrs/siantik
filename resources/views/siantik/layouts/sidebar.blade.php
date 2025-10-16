@@ -83,7 +83,7 @@
                     </div>
                 </div>
                 <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
-                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion mb-1 {{ in_array($current, ['formPenilaianSatker', 'form-penilaian-satker']) ? 'here show' : '' }}">
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion mb-1 {{ in_array($current, ['formPenilaianSatker', 'form-penilaian-satker', 'lihat', 'tambah-profilling', 'ubah-profilling']) ? 'here show' : '' }}">
                         <span class="menu-link">
                             <span class="menu-icon">
                                 <i class="bi bi-patch-check fs-3"></i>
@@ -93,7 +93,7 @@
                         </span>
                         <div class="menu-sub menu-sub-accordion">
                             <div class="menu-item">
-                                <a class="menu-link {{ Request::is('formPenilaianSatker', 'formPenilaianSatker/*', 'form-penilaian-satker/*') ? 'active' : '' }}" href="/formPenilaianSatker">
+                                <a class="menu-link {{ Request::is('formPenilaianSatker', 'formPenilaianSatker/*', 'form-penilaian-satker/*', 'lihat/*', 'profilling/*', 'tambah-profilling/*', 'ubah-profilling/*') ? 'active' : '' }}" href="/formPenilaianSatker">
                                     <span class="menu-bullet">
                                         <span class="bullet bullet-dot"></span>
                                     </span>

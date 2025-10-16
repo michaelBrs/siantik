@@ -16,7 +16,10 @@ use App\Models\PenilaianJawaban;
 use App\Models\Pilihan;
 use App\Models\PenilaianPilihan;
 use App\Models\SkorKematangan;
+use App\Models\PenilaianProfilling;
 use Illuminate\Http\JsonResponse;
+use App\Models\PertanyaanProfilling;
+
 
 
 class FormPenilaianSatkerController extends Controller
@@ -484,7 +487,10 @@ class FormPenilaianSatkerController extends Controller
     public function generateSoalJawaban($id)
     {
         
-        $formSatker = FormPenilaianSatker::with('formPenilaian.tahunSoal.soals')->findOrFail($id);
+        $formSatker = FormPenilaianSatker::with([
+            'formPenilaian.tahunSoal.soals',
+            'formPenilaian.tahunSoal.profillings'
+            ])->findOrFail($id);
         
         // Cek apakah user yang login berhak mengakses berdasarkan wilayah
         $userWilayahId = auth()->user()->profile->wilayah_id;
@@ -494,14 +500,14 @@ class FormPenilaianSatkerController extends Controller
         
         // Cek apakah sudah digenerate sebelumnya
         if ($formSatker->is_generate) {
-            return back()->with('warning', 'Data sudah digenerate sebelumnya.');
+            return back()->with('warning', 'Data sudah dibuka sebelumnya.');
         }
 
         DB::beginTransaction();
         
         try {
+
             $soals = $formSatker->formPenilaian->tahunSoal->soals;
-            
             // Simpan ke tabel penilaian_soals dan penilaian_jawabans
             foreach ($soals as $soal) {
                 // Insert ke penilaian_soals
@@ -534,14 +540,27 @@ class FormPenilaianSatkerController extends Controller
                 }
             }
 
+
+            $pertanyaanProfillings = $formSatker->formPenilaian->tahunSoal->profillings;
+            //Simpan ke tabel penilaian profiliing
+            foreach ($pertanyaanProfillings as $pertanyaanProfilling) {
+                $penilaianProfilling = PenilaianProfilling::create([
+                    'id_form_penilaian_satker' => $formSatker->id,
+                    'id_pertanyaan_profilling' => $pertanyaanProfilling->id,
+                    'jawaban' => null,
+                    'keterangan' => null,
+                ]);
+            }
+
+
             // Update status is_generate
             $formSatker->update(['is_generate' => 1]);
 
             DB::commit();
-            return back()->with('success', 'Generate berhasil dilakukan.');
+            return back()->with('success', 'Soal Pengerjaan berhasil dibuka.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Generate gagal: ' . $e->getMessage());
+            return back()->with('error', 'Buka soal gagal: ' . $e->getMessage());
         }
     }
 
@@ -588,7 +607,7 @@ class FormPenilaianSatkerController extends Controller
                     $form->save();
 
                     DB::commit();
-                    return redirect()->back()->with('success', 'Form berhasil dikunci. Terimakasih sudah menyelesaikan penilaian kematangan TIK.');
+                    return redirect()->back()->with('success', 'Form berhasil Submit. Terimakasih sudah menyelesaikan penilaian kematangan TIK.');
                 } else {
                     // DB::commit();
                     return redirect()->back()->with('warning', 'Form sudah dikunci sebelumnya.');
@@ -650,10 +669,23 @@ class FormPenilaianSatkerController extends Controller
 
         // Default (terbaru di wilayah yang terlihat)
         $defaultFormSatkerId = \App\Models\FormPenilaianSatker::whereIn('wilayah_id', $visibleIds)->max('id');
-        // $defaultFormSatkerId = (float) $visibleIds;
-        // dd($defaultFormSatkerId);
+        
+        // Mengambil data Profilling
+        $profilPertanyaans = [];
+        $profilJawabanMap = [];
 
-        // dd($FormSatker);
+        if ($defaultFormSatkerId) {
+            $form = FormPenilaianSatker::with([
+                'formPenilaian.tahunSoal.profillings',
+                'penilaianProfillings.pertanyaan'
+            ])->find($defaultFormSatkerId);
+            
+            if($form->is_locked){
+                $profilPertanyaans = $form->formPenilaian->tahunSoal->profillings ?? collect();
+                $profilJawabanMap  = $form->penilaianProfillings->keyBy('id_pertanyaan_profilling') ?? collect();
+            }
+        }
+
         // Nilai & predikat untuk default (kalau ada)
         $indeksKematangan = 0.0; 
         $predikatKematangan = '-';
@@ -666,7 +698,7 @@ class FormPenilaianSatkerController extends Controller
                 ($indeksKematangan <= 4 ? 'Cukup Baik' : 'Sangat Baikkkkkkkk')));
         }
 
-        return view('siantik.dashboard.home', compact('satkerForms','latestByForm','defaultFormSatkerId','indeksKematangan','predikatKematangan'))
+        return view('siantik.dashboard.home', compact('satkerForms','latestByForm','defaultFormSatkerId','indeksKematangan','predikatKematangan', 'profilPertanyaans', 'profilJawabanMap'))
             ->with([
                 'defaultFormSatker' => $defaultFormSatkerId,
                 'userSatker' => $userSatker,
@@ -778,6 +810,129 @@ class FormPenilaianSatkerController extends Controller
             }
 
         return response()->json($rows);
+    }
+
+    // Menambahkan pertanyaan Profil Isian
+    public function profilling($id_formPenilaianSatker)
+    {
+        $userWilayahId = auth()->user()->profile->wilayah_id;
+
+        $penilaianProfilling = FormPenilaianSatker::with('formPenilaian.tahunSoal.profillings')->findOrFail($id_formPenilaianSatker);
+        $pertanyaan = $penilaianProfilling->formPenilaian->tahunSoal->profillings;
+
+        return view('siantik.penilaian.profilling', compact('pertanyaan', 'id_formPenilaianSatker'));
+    }
+
+    public function simpanProfilling(Request $request)
+    {
+        $request->validate([
+            'form_penilaian_satker_id' => 'required|exists:form_penilaian_satkers,id',
+            'jawaban' => 'required|array',
+        ]);
+
+        $formId = $request->form_penilaian_satker_id;
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->jawaban as $pertanyaanId => $jawaban) {
+                $data = [
+                    'id_form_penilaian_satker' => $formId,
+                    'id_pertanyaan_profilling' => $pertanyaanId,
+                    'jawaban' => is_array($jawaban) ? json_encode($jawaban) : $jawaban,
+                    'keterangan' => $request->keterangan[$pertanyaanId] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                PenilaianProfilling::updateOrCreate([
+                    'id_form_penilaian_satker' => $formId,
+                    'id_pertanyaan_profilling' => $pertanyaanId
+                ], $data);
+            }
+
+            FormPenilaianSatker::where('id', $formId)->update(['submit' => 1]);
+
+            DB::commit();
+
+            return redirect()->route('formPenilaianSatker.index')->with('success', 'Data profilling berhasil disimpan.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('warning', 'Data Profilling gagal simpan: ' . $e->getMessage());
+        }
+
+    }
+
+    public function lihatProfilling($id_formPenilaianSatker)
+    {
+        // Ambil data form + jawaban profilling + pertanyaannya
+        $form = FormPenilaianSatker::with([
+            'formPenilaian.tahunSoal.profillings',
+            'penilaianProfillings.pertanyaan'
+        ])->findOrFail($id_formPenilaianSatker);
+
+        // Buat koleksi jawaban dengan key berdasarkan id_pertanyaan_profilling
+        $jawabanMap = ($form->penilaianProfillings ?? collect())->keyBy('id_pertanyaan_profilling');
+        $pertanyaan = $form->formPenilaian->tahunSoal->profillings;
+        // dd($jawabanMap);
+
+        return view('siantik.penilaian.lihat-profilling', [
+            'form' => $form,
+            'pertanyaans' => $pertanyaan,
+            'jawabanMap' => $jawabanMap,
+        ]);
+    }
+
+
+    public function editProfilling($id_formPenilaianSatker)
+    {
+        $form = FormPenilaianSatker::with([
+            'formPenilaian.tahunSoal.profillings.keahlians',
+            'formPenilaian.tahunSoal.profillings.pelatihans',
+            'penilaianProfillings'
+        ])->findOrFail($id_formPenilaianSatker);
+
+        $pertanyaanList = $form->formPenilaian->tahunSoal->profillings;
+        $jawabanMap = ($form->penilaianProfillings ?? collect())->keyBy('id_pertanyaan_profilling');
+
+        return view('siantik.penilaian.edit-profilling', compact('form', 'pertanyaanList', 'jawabanMap'));
+    }
+
+    public function updateProfilling(Request $request, $id_formPenilaianSatker)
+    {
+        $request->validate([
+            'jawaban' => 'required|array',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->jawaban as $pertanyaanId => $jawaban) {
+                $data = [
+                    'id_form_penilaian_satker' => $id_formPenilaianSatker,
+                    'id_pertanyaan_profilling' => $pertanyaanId,
+                    'jawaban' => is_array($jawaban) ? json_encode($jawaban) : $jawaban,
+                    'keterangan' => $request->keterangan[$pertanyaanId] ?? null,
+                    'updated_at' => now(),
+                ];
+
+                PenilaianProfilling::updateOrCreate([
+                    'id_form_penilaian_satker' => $id_formPenilaianSatker,
+                    'id_pertanyaan_profilling' => $pertanyaanId
+                ], $data);
+            }
+
+            // Tandai form profilling jika sudah isi maka hasilnya di kolom submit = 1
+            FormPenilaianSatker::where('id', $id_formPenilaianSatker)->update(['submit' => 1]);
+
+            DB::commit();
+
+            return redirect()->route('formPenilaianSatker.index')->with('success', 'Data profilling berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('warning', 'Gagal menyimpan perubahan: ' . $e->getMessage());
+        }
     }
 
 }

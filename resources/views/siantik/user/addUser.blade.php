@@ -54,7 +54,7 @@
 
                                 <div class="mb-5">
                                     <label class="required form-label">Role</label>
-                                    <select class="form-select form-select-solid" data-control="select2" name="role" id="role">
+                                    <select class="form-select form-select-solid" data-control="select2" name="role" id="role" required>
                                         <option value="">Pilih Role</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ $role->id }}" {{ old('role') == $role->id ? 'selected' : '' }}>

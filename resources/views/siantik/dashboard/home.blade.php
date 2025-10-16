@@ -1,6 +1,6 @@
 @extends('siantik.layouts.main')
 
-@section('title', 'Dashboard')
+@section('title', 'Siantik - Dashboard')
 
 @section('container')
     {{-- CSS Badge Blink --}}
@@ -139,7 +139,7 @@
                     </table>
                   </div>
                 </div>
-              </div>
+            </div>
 
             <!-- Hasil Evaluasi Radar Chart -->
             <div class="card card-flush">
@@ -164,10 +164,6 @@
 
                     {{-- Tabel Evaluasi --}}
                     <div class="card card-flush mb-5">
-                        {{-- <div class="card-header">
-                            <h3 class="card-title fw-bold">Informasi Domain & Indikator SPBE</h3>
-                        </div> --}}
-
                         <br> <br>
                         <div class="separator separator-dotted separator-content border-primary my-0"><span class="h6 text-primary"> INFORMASI & NILAI KEMATANGAN </span></div> <br>
 
@@ -259,7 +255,82 @@
                         </table>
                     </div>
                 </div>
-            </div>
+
+                <div class="card-header">
+                    <h3 class="card-title fw-bold">
+                        <span class="me-2">
+                            <div class="symbol symbol-5px symbol-square flex-shrink-0">
+                                <img src="{{ asset('assets/media/icons/duotune/abstract/abs037.svg') }}" alt="logo" 
+                                     style="width: 20px; height: 20px;" />  
+                            </div>
+                        </span>
+                        Data Profilling
+                    </h3>
+                </div>
+
+
+                <div class="card card-flush shadow-sm mb-10">
+                    <div class="card-body pt-0">
+                        <div class="separator separator-dotted separator-content border-primary my-0"><span class="h6 text-primary"> Profilling </span></div>
+                        <br> <br>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-rounded border border-gray-300 table-row-bordered table-row-gray-300 gy-7 gs-7">
+                                <thead class="text-center fw-bold">
+                                    <tr>
+                                         <th style="width: 5%">No</th>
+                                        <th style="width: 30%">Pertanyaan</th>
+                                        <th>Jawaban</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($profilPertanyaans as $p)
+                                        @php
+                                            $jawaban = $profilJawabanMap[$p->id]->jawaban ?? '-';
+                                            $keterangan = $profilJawabanMap[$p->id]->keterangan ?? null;
+                                            $isArray = is_array(json_decode($jawaban, true));
+                                        @endphp
+                                        <tr>
+                                            <td class="text-center fw-bold text-gray-700">{{ $loop->iteration }}</td>
+                                            <td class="fw-semibold w-25">
+                                                <i class="ki-duotone ki-information-3 fs-4 me-2 text-primary"></i>
+                                                {{ $p->keterangan }}
+                                            </td>
+                                            <td>
+                                                <div class="text-gray-800 fs-6">
+                                                    @if($isArray)
+                                                        <ul class="mb-1 ps-4">
+                                                            @foreach(json_decode($jawaban, true) as $index => $item)
+                                                                <li class="d-flex align-items-center py-2">
+                                                                    <div class="bg-gray-200 text-primary rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 24px; height: 24px; font-size: 1.1rem;">
+                                                                        {{ $index + 1 }}
+                                                                    </div>
+                                                                    {{ $item }}
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @else
+                                                        <span class="fs-6 px-3 py-2">{{ $jawaban }}</span>
+                                                    @endif
+                                                </div>
+
+                                                @if($keterangan)
+                                                    <div class="text-muted fst-italic mt-1 small">
+                                                        <i class="ki-duotone ki-message-question fs-5 me-1"></i>
+                                                        {{ $keterangan }}
+                                                    </div>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2" class="text-muted text-center">Belum ada data profilling yang diinput.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
         </div>
     </div>
 

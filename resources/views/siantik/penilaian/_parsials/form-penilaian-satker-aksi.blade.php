@@ -12,34 +12,34 @@
         @endrole
 
         @role(['Operator Provinsi', 'Operator Kabupaten'])
-            {{-- <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="popover" data-bs-placement="top" title="Popover on top" data-bs-content="And here's some amazing content. It's very engaging. Right?">
-                <i class="fas fa-info"></i>  Popover on top
-            </button> --}}
-            {{-- <button class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss-="click" title="Harus digenerate terlebih dahulu oleh admin.">
-                <i class="fas fa-info"></i> Belum Generate
-            </button> --}}
             <div class="badge badge-light-danger" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-dismiss-="click" title="Harus dibuka terlebih dahulu oleh Verifikator."> Belum di Buka </div>
         @endrole
     @elseif ($row->formPenilaian && $row->formPenilaian->status)
         
         @if (!$row->is_locked)
             @role(['Operator Provinsi', 'Operator Kabupaten'])
-                <a href="{{ route('formPenilaianSatker.show', $row->id) }}" class="btn btn-sm btn-light-primary">
-                    <i class="fas fa-edit"></i> Kerjakan
-                </a>
+                @if(!$row->submit)
+                    <a href="{{ route('formPenilaianSatker.profilling', $row->id) }}" class="btn btn-sm btn-light-success">
+                        <i class="fas fa-edit"></i> Profilling
+                    </a>
+                @else
+                    <a href="{{ route('formPenilaianSatker.editProfilling', $row->id) }}" class="btn btn-sm btn-light-success">
+                        <i class="fas fa-edit"></i> Profilling
+                    </a>
+                    <a href="{{ route('formPenilaianSatker.show', $row->id) }}" class="btn btn-sm btn-light-primary">
+                        <i class="fas fa-edit"></i> Kerjakan
+                    </a>
+                @endif
             @endrole
 
             @role(['Admin', 'Admin Provinsi', 'Admin Kabupaten'])
+                <a href="{{ route('formPenilaianSatker.lihatProfilling', $row->id) }}" class="btn btn-sm btn-light-success">
+                    <i class="fas fa-eye"></i> Profilling
+                </a>
+
                 <a href="{{ route('formPenilaianSatker.show', $row->id) }}" class="btn btn-sm btn-light-primary">
                     <i class="fas fa-eye"></i> Lihat
                 </a>
-
-                {{-- <form id="form-kunci-{{ $row->id }}" action="{{ route('formPenilaianSatker.kunci', $row->id) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-light-danger">
-                        <i class="fas fa-unlock"></i> Submit
-                    </button>
-                </form> --}}
 
                 <form id="form-kunci-{{ $row->id }}" action="{{ route('formPenilaianSatker.kunci', $row->id) }}" method="POST" class="d-inline">
                     @csrf
@@ -51,6 +51,10 @@
                 </form>
             @endrole
         @else
+            <a href="{{ route('formPenilaianSatker.lihatProfilling', $row->id) }}" class="btn btn-sm btn-light-success">
+                <i class="fas fa-eye"></i> Profilling
+            </a>
+
             <a href="{{ route('formPenilaianSatker.show', $row->id) }}" class="btn btn-sm btn-light-primary">
                 <i class="fas fa-eye"></i> Lihat
             </a>

@@ -1,6 +1,6 @@
 @extends('siantik.layouts.main') {{-- sesuaikan dengan layout Metronic Anda --}}
 
-@section('title', 'Data Soal')
+@section('title', 'Data Soal - Siantik')
 
 @section('container')
     <!--begin::Toolbar-->

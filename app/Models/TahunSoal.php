@@ -21,4 +21,9 @@ class TahunSoal extends Model
     {
         return $this->hasMany(Soal::class, 'id_tahun_soal');
     }
+
+    public function profillings()
+    {
+        return $this->hasMany(PertanyaanProfilling::class, 'id_tahun_soal');
+    }
 }

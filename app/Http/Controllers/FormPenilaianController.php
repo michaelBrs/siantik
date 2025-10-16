@@ -18,7 +18,9 @@ class FormPenilaianController extends Controller
      */
     public function index()
     {
-        return view('siantik.penilaian.formPenilaian');
+        $form = FormPenilaian::get();
+
+        return view('siantik.penilaian.formPenilaian', compact('form'));
     }
 
     /**
@@ -50,6 +52,7 @@ class FormPenilaianController extends Controller
             'waktu_mulai'   => 'required|date',
             'batas_waktu'   => 'required|date|after_or_equal:waktu_mulai',
             'status'        => 'required|in:0,1',
+            'is_generate'   => 'required',
             'keterangan'    => 'nullable|string',
         ]);
 
@@ -62,6 +65,7 @@ class FormPenilaianController extends Controller
             'waktu_mulai'    => $validated['waktu_mulai'],
             'batas_waktu'    => $validated['batas_waktu'],
             'status'         => $validated['status'],
+            'is_generate'    => $validated['is_generate'],
             'keterangan'     => $validated['keterangan'] ?? null,
         ]);
 
@@ -163,7 +167,7 @@ class FormPenilaianController extends Controller
                     $editUrl = route('formPenilaian.edit', $row->id);
                     $generateForm = route('formPenilaianSatker.generate', $row->id);
                     $deleteUrl = route('formPenilaian.destroy', $row->id);
-                    return view('siantik.penilaian._parsials.form-penilaian-aksi', compact('editUrl', 'deleteUrl', 'generateForm'));
+                    return view('siantik.penilaian._parsials.form-penilaian-aksi', compact('editUrl', 'deleteUrl', 'generateForm', 'row'));
                 })
                 ->rawColumns(['aksi', 'status'])
                 ->make(true);
@@ -173,25 +177,42 @@ class FormPenilaianController extends Controller
     public function generateForm($formPenilaianId)
     {
         $now = Carbon::now();
+        
+        DB::beginTransaction();
 
-        DB::table('form_penilaian_satkers')->insertUsing([
-            'wilayah_id',
-            'is_locked',
-            'locked_at',
-            'form_penilaian_id',
-            'submit',
-            'is_generate',
-            'indeks_kematangan',
-            'predikat_kematangan',
-            'created_at',
-            'updated_at'
-        ], 
-        DB::table('wilayah')->selectRaw(
-            'id, 0 as is_locked, NULL as locked_at, ? as form_penilaian_id, 0 as submit, 0 as is_generate, NULL as indeks_kematangan, NULL as predikat_kematangan, ? as created_at, ? as updated_at',
-            [$formPenilaianId, $now, $now]
-        ));
+        try {
 
-        return redirect()->back()->with('success', 'Form berhasil digenerate.');
+            DB::table('form_penilaian_satkers')->insertUsing([
+                'wilayah_id',
+                'is_locked',
+                'locked_at',
+                'form_penilaian_id',
+                'submit',
+                'is_generate',
+                'indeks_kematangan',
+                'predikat_kematangan',
+                'created_at',
+                'updated_at'
+            ], 
+            DB::table('wilayah')->selectRaw(
+                'id, 0 as is_locked, NULL as locked_at, ? as form_penilaian_id, 0 as submit, 0 as is_generate, NULL as indeks_kematangan, NULL as predikat_kematangan, ? as created_at, ? as updated_at',
+                [$formPenilaianId, $now, $now]
+            ));
+
+            $formPenilaian = FormPenilaian::findOrFail($formPenilaianId);
+            $formPenilaian->update([
+                'is_generate' => 1,
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Form berhasil digenerate.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('warning', 'Data gagal di generate: ' . $e->getMessage());
+        }
+
+        
     }
 
 }

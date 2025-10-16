@@ -97,6 +97,10 @@
             Route::put('soal/update/{id}', [SoalController::class, 'updateSoal'])->name('soal.updateSoal');
             Route::get('soal/{id?}', [SoalController::class, 'show'])->name('soal.showSoal');
             Route::delete('soal-delete/{id}', [SoalController::class, 'destroy'])->name('soal.destroy');
+            
+            //Profilling
+            Route::get('soal/{id}/profilling', [SoalController::class, 'showSoalProfilling'])->name('soal.showSoalProfilling');
+            Route::get('data-tambahan-profilling/{id}', [SoalController::class, 'dataTambahanProfilling'])->name('soal.dataTambahanProfilling');
 
             //jawaban
             Route::get('soal/jawaban-view/{id_soal?}', [SoalController::class, 'showJawaban'])->name('soal.showJawaban');
@@ -169,7 +173,12 @@
         //Data untuk Dashboard mengambil data Indikator
         Route::get('/dashboard/jawaban/{formSatker}', [FormPenilaianSatkerController::class, 'jawabanData'])->name('dashboard.jawaban');
 
-
+        // profilling
+        Route::get('/tambah-profilling/{formSatker}', [FormPenilaianSatkerController::class, 'profilling'])->name('formPenilaianSatker.profilling');
+        Route::post('/profilling/simpan', [FormPenilaianSatkerController::class, 'simpanProfilling'])->name('formPenilaianSatker.simpanProfilling');
+        Route::get('/lihat/{id}/profilling', [FormPenilaianSatkerController::class, 'lihatProfilling'])->name('formPenilaianSatker.lihatProfilling');
+        Route::get('/ubah-profilling/{id}/profilling', [FormPenilaianSatkerController::class, 'editProfilling'])->name('formPenilaianSatker.editProfilling');
+        Route::put('/update-profilling/{id}/profilling', [FormPenilaianSatkerController::class, 'updateProfilling'])->name('formPenilaianSatker.updateProfilling');
 
     });
 

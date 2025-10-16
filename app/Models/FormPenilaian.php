@@ -13,7 +13,7 @@ class FormPenilaian extends Model
 
     protected $fillable = [
         'tahun', 'nama_form', 'tahap_form', 
-        'id_tahun_soal', 'waktu_mulai', 'batas_waktu', 'status', 'keterangan',
+        'id_tahun_soal', 'waktu_mulai', 'batas_waktu', 'status', 'keterangan', 'is_generate',
     ];
 
     /**

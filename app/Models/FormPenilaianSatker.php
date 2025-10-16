@@ -25,4 +25,10 @@ class FormPenilaianSatker extends Model
     {
         return $this->hasMany(PenilaianSoal::class, 'id_form_penilaian_satker');
     }
+
+    public function penilaianProfillings()
+    {
+        return $this->hasMany(PenilaianProfilling::class, 'id_form_penilaian_satker');
+    }
+
 }

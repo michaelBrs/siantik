@@ -1,6 +1,6 @@
 @extends('siantik.layouts.main') {{-- sesuaikan dengan layout Metronic Anda --}}
 
-@section('title', 'Data Form Penilaian')
+@section('title', 'Siantik - Data Form Penilaian')
 
 @section('container')
     <!--begin::Toolbar-->
@@ -254,13 +254,14 @@
                         title: '<h2 class="fw-bold text-danger mb-0">Konfirmasi!</h2>',
                         html: `
                             <div class="mt-4 mb-2 text-gray-900">
-                                Setelah <strong>dikirim & dikunci</strong>, Anda <b>tidak bisa mengubah data</b> lagi.<br/>
+                                Setelah <strong>dikirim & disubmit</strong>, Anda <b class='text-danger'>tidak bisa mengubah data</b>.<br/>
+                                Pastikan data <strong class='text-primary'>Profilling</strong> dan <strong class='text-primary'>Penilaian Aspek</strong> sudah di isi dengan benar. <br/> <br/> 
                                 Apakah Anda yakin ingin melanjutkan?
                             </div>
                             `,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'Ya, Submit Data',
+                        confirmButtonText: 'Ya, Submit Penilaian',
                         cancelButtonText: 'Batal',
                         customClass: {
                             confirmButton: 'btn btn-danger',

@@ -239,7 +239,12 @@ class UserController extends Controller
         }
         //end cek Otorisasi
 
+        // dd($request);
+
         $request->validate([
+            'role' => 'required',
+            'tingkat' => 'required',
+            'wilayah' => 'required',
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'nip' => 'required|string|max:20|unique:user_profiles,nip',

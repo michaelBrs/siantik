@@ -86,8 +86,6 @@ class SatkerMonitorController extends Controller
             ->orderBy('kode_wilayah', 'asc')
             ->get();
 
-        // dd($wilayahProv);
-
         // Default: pilih form yang status=1 (aktif) kalau ada; kalau tidak, ambil yang terbaru
         $defaultForm = $forms->filter(fn ($f) => (int)($f->formPenilaian->status ?? 0) === 1)->first();
         $defaultFormId = optional($defaultForm)->form_penilaian_id
@@ -212,10 +210,12 @@ class SatkerMonitorController extends Controller
     {
         // muat relasi yang dibutuhkan
         $formSatker->load([
-            'formPenilaian:id,nama_form,tahun,keterangan',
+            'formPenilaian:id,nama_form,tahun,keterangan,id_tahun_soal',
             'wilayah:id,nama_wilayah',
             'wilayah.userProfiles:id,wilayah_id,satker,tingkat_id',
             'wilayah.userProfiles.tingkat:id,nama',
+            'formPenilaian.tahunSoal.profillings',
+            'penilaianProfillings.pertanyaan',
         ]);
 
         // ambil 1 profil yang mewakili satker pada wilayah tsb
@@ -249,6 +249,14 @@ class SatkerMonitorController extends Controller
             $info = 'Proses';
         }
 
+
+        //Data Profilling
+        $profilPertanyaans = [];
+        $profilJawabanMap = [];
+        $profilPertanyaans = $formSatker->formPenilaian->tahunSoal->profillings ?? collect();
+        $profilJawabanMap  = $formSatker->penilaianProfillings->keyBy('id_pertanyaan_profilling') ?? collect();
+        
+
         // kirim ke blade detail (yang mirip dashboard, tanpa dropdown/progress)
         return view('siantik.dashboard.view-detail-satker', [
             'formSatker'          => $formSatker,
@@ -258,6 +266,9 @@ class SatkerMonitorController extends Controller
             'predikatKematangan'  => $predikatKematangan,
             'waktuSubmit'         => $info,
             'defaultFormSatker'   => $formSatker->id,
+            
+            'profilPertanyaans'    => $profilPertanyaans,
+            'profilJawabanMap'     => $profilJawabanMap,
         ]);
     }
 

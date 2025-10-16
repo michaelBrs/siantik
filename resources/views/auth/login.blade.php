@@ -1,20 +1,10 @@
 
 <!DOCTYPE html>
-<!--
-Author: Keenthemes
-Product Name: Metronic - Bootstrap 5 HTML, VueJS, React, Angular & Laravel Admin Dashboard Theme
-Purchase: https://1.envato.market/EA4JP
-Website: http://www.keenthemes.com
-Contact: support@keenthemes.com
-Follow: www.twitter.com/keenthemes
-Dribbble: www.dribbble.com/keenthemes
-Like: www.facebook.com/keenthemes
-License: For each use you must have a valid license purchased only from above link in order to legally use the theme for your project.
--->
+
 <html lang="en">
 	<!--begin::Head-->
 	<head><base href="">
-		<title>@yield('title', 'Siantik')</title>
+		<title>@yield('title', 'Siantik - Login')</title>
         <meta charset="utf-8" />
         <meta name="description" content="Dashboard Siantik - Sistem Informasi Admin Tiket & Pelaporan" />
         <meta name="keywords" content="Siantik, Admin, Laravel, Dashboard, Bootstrap" />
@@ -25,7 +15,7 @@ License: For each use you must have a valid license purchased only from above li
         <meta property="og:url" content="{{ url('/') }}" />
         <meta property="og:site_name" content="Siantik" />
         <link rel="canonical" href="{{ url('/') }}" />
-        <link rel="shortcut icon" href="{{ asset('assets/media/logos/favicon.ico') }}" />
+        <link rel="shortcut icon" href="{{ asset('assets/media/avatars/kpu.png') }}" />
 
         <!--begin::Fonts-->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" />
@@ -47,11 +37,11 @@ License: For each use you must have a valid license purchased only from above li
 			<div class="d-flex flex-column flex-lg-row-auto w-xl-600px" style="background-color: #990000">
 				<div class="d-flex flex-column position-xl-fixed top-0 bottom-0 w-xl-600px scroll-y">
 					<div class="d-flex flex-row-fluid flex-column text-center p-10 pt-lg-20">
-						<a href="/" class="py-9 mb-5">
-							<img alt="Logo" src="{{ asset('assets/media/logos/logo-demo13.svg') }}" class="h-80px" />
+						<a href="/" class="py-9 mb-5" style="background-color:rgba(16, 1, 1, 0.952);">
+							<img alt="Logo" src="{{ asset('assets/media/avatars/logoSiantik.png') }}" class="h-80px" />
 						</a>
 						<h1 class="fw-bolder fs-2qx pb-5 pb-md-10" style="color: #FFFFFF;">Welcome to Siantik</h1>
-						<p class="fw-bold fs-2" style="color: #F8F8FF;">Sistem Informasi Asesmen Nilai Tingkat Kematangan Teknologi Informasi dan Komunikasi.</p>
+						<p class="fw-bold fs-2" style="color: #F8F8FF;">Sistem Informasi Assesmen Nilai Tingkat Kematangan Teknologi Informasi dan Komunikasi</p>
 					</div>
 					<div class="d-flex flex-row-auto bgi-no-repeat bgi-position-x-center bgi-size-contain bgi-position-y-bottom min-h-100px min-h-lg-350px"
 						style="background-image: url('{{ asset('assets/media/illustrations/unitedpalms-1/13.png') }}')">

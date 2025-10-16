@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\TahunSoal;
 use App\Models\Soal;
 use App\Models\Jawaban;
+use App\Models\PertanyaanProfilling;
+use App\Models\DataKeahlian;
+use App\Models\KebutuhanPelatihan;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -64,6 +67,16 @@ class SoalController extends Controller
         $tahunSoal = $dataTahunSoal->tahun;
 
         return view('siantik.penilaian.soal', compact('id_tahun_soal', 'tahunSoal'));
+    }
+
+    public function showSoalProfilling($id_tahun_soal)
+    {
+        $dataProfilling = PertanyaanProfilling::where('id_tahun_soal', $id_tahun_soal)->get();
+
+        return view('siantik.penilaian.soalProfilling', [
+            'id_tahun_soal' => $id_tahun_soal,
+            'profilling'    => $dataProfilling,
+        ]);
     }
 
     //Show Soal/Aspek
@@ -162,9 +175,10 @@ class SoalController extends Controller
                 ->addIndexColumn()
                 ->addColumn('aksi', function ($row) {
                     $showUrl = route('soal.show', $row->id);
+                    $showProfilling = route('soal.showSoalProfilling', $row->id);
                     $editUrl = route('soal.edit', $row->id);
                     $deleteUrl = route('soal.destroy', $row->id);
-                    return view('siantik.penilaian._parsials.tahun-soal-aksi', compact('showUrl', 'editUrl', 'deleteUrl', 'row'));
+                    return view('siantik.penilaian._parsials.tahun-soal-aksi', compact('showUrl', 'editUrl', 'deleteUrl', 'showProfilling', 'row'));
                 })
                 ->rawColumns(['aksi'])
                 ->make(true);
@@ -287,6 +301,30 @@ class SoalController extends Controller
         ]);
 
         return redirect()->route('soal.showJawaban', ['id_soal' => $jawaban->id_soal])->with('success', 'Data jawaban berhasil diperbarui.');
+    }
+
+
+    public function dataTambahanProfilling($id_tahun_soal)
+    {
+        // Ambil semua pertanyaan profilling berdasarkan id_tahun_soal
+        $pertanyaanProfilings = PertanyaanProfilling::where('id_tahun_soal', $id_tahun_soal)->get();
+
+        $data = [];
+
+        foreach ($pertanyaanProfilings as $pertanyaan) {
+            $data[] = [
+                'id' => $pertanyaan->id,
+                'pertanyaan' => $pertanyaan->pertanyaan,
+                'keterangan' => $pertanyaan->keterangan,
+                'keahlians' => DataKeahlian::where('id_pertanyaan_profilling', $pertanyaan->id)->get(),
+                'pelatihans' => KebutuhanPelatihan::where('id_pertanyaan_profilling', $pertanyaan->id)->get(),
+            ];
+        }
+
+        return view('siantik.penilaian.data-tambahan-profilling', [
+            'data' => $data,
+            'id_tahun_soal' => $id_tahun_soal,
+        ]);
     }
             
     
